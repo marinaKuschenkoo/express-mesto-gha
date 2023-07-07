@@ -23,6 +23,9 @@ app.use((req, res, next) => {
 
 app.use('/', userRouter);
 app.use('/', cardRouter);
+app.use('*', (req, res) => {
+  res.status(404).send({ message: 'Страницы не существует' });
+});
 
 app.listen(PORT, () => {
   console.log('Сервер запущен');
