@@ -38,23 +38,25 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.updateProfile = (req, res) => {
-  const { name, about } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { name, about }, {
-    new: true, // обработчик then получит на вход обновлённую запись
-    runValidators: true, // данные будут валидированы перед изменением
-  })
-    .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.status(200).send({ user }))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-        return;
-      }
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+  const { avatar } = req.body;
+  const owner = req.user._id;
+  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        res.status(200).send(user);
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res
+          .status(404)
+          .send({ message: 'Пользователь по указанному id не найден' });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении пользователя',
+        });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
