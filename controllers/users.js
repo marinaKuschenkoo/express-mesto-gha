@@ -47,18 +47,14 @@ module.exports.updateProfile = (req, res) => {
     .orFail(() => { throw new Error('NotFound'); })
     .then((user) => res.status(200).send({ user }))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'переданы некорректные данные',
-          // err: err.message
-        });
-      } else if (err.status === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь не найден' });
+      if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
+      }
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
-        res.status(500).send({
-          message: 'Что-то не так',
-          // err: err.message
-        });
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
     });
 };
