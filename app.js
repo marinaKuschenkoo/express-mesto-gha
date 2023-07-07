@@ -25,5 +25,5 @@ app.use('/', userRouter);
 app.use('/', cardRouter);
 
 app.listen(PORT, () => {
-  console.log('Сервер запущен!');
+  console.log('Сервер запущен');
 });
