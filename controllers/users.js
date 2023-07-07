@@ -38,57 +38,41 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.updateProfile = (req, res) => {
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({
-          message: 'User not found',
-        });
-      }
-      return res.status(200).send(user);
-    })
+  const { name, about } = req.body;
+
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true, // обработчик then получит на вход обновлённую запись
+    runValidators: true, // данные будут валидированы перед изменением
+  })
+    .orFail(() => { throw new Error('NotFound'); })
+    .then((user) => res.status(200).send({ user }))
     .catch((err) => {
+      if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Invalid data',
-          err: err.message,
-          stack: err.stack,
-        });
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       } else {
-        res.status(500).send({
-          message: 'Update Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
     });
 };
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => {
-      if (user && user.avatar === avatar) {
-        res.status(200).send(user);
-      } else {
-        res.status(400).json({
-          message: 'Avatar URL in response does not match the requested URL',
-          err: 'Invalid avatar URL',
-        });
-      }
-    })
+
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .orFail(() => { throw new Error('NotFound'); })
+    .then((user) => res.status(200).send({ user }))
     .catch((err) => {
+      if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Invalid data',
-          err: err.message,
-          stack: err.stack,
-        });
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       } else {
-        res.status(500).send({
-          message: 'Update Error',
-          err: err.message,
-          stack: err.stack,
-        });
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
     });
 };
