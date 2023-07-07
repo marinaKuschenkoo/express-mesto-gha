@@ -45,7 +45,7 @@ module.exports.updateProfile = (req, res) => {
     runValidators: true, // данные будут валидированы перед изменением
   })
     .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.send({ user }))
+    .then((user) => res.status(200).send({ user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
@@ -60,19 +60,24 @@ module.exports.updateProfile = (req, res) => {
 };
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.send({ user }))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-        return;
-      }
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+  const owner = req.user._id;
+  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        res.status(200).send(user);
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res
+          .status(404)
+          .send({ message: 'Пользователь по указанному id не найден' });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении пользователя',
+        });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
