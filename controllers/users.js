@@ -46,7 +46,6 @@ module.exports.updateProfile = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-        return;
       }
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
@@ -64,7 +63,6 @@ module.exports.updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-        return;
       }
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
