@@ -9,20 +9,18 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(() => { throw new Error('NotFound'); })
-    .then(() => {
-      res.status(200).send({ message: 'Карточка с указанным _id не найдена.' });
+    .then((card) => {
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'переданы некорректные данные',
-        });
-      } else if (err.status === 'NotFound') {
-        res.status(404).send({ message: 'Карточка не найдена' })
+      if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при удалении карточки' });
       } else {
-        res.status(500).send({
-          message: 'Что-то не так',
-        });
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
     });
 };

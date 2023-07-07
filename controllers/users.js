@@ -7,7 +7,7 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params._id)
+  User.findById(req.params.userId)
     .orFail(() => { throw new Error('NotFound'); })
     .then((user) => res.status(200).send({ user }))
     .catch((err) => {
@@ -63,7 +63,7 @@ module.exports.updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { avatar })
     .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => res.send({ user }))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
