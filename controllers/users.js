@@ -38,48 +38,57 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.updateProfile = (req, res) => {
-  const { avatar } = req.body;
-  const owner = req.user._id;
-  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => {
-      if (user) {
-        res.status(200).send(user);
-      } else {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
+      if (!user) {
+        return res.status(404).send({
+          message: 'User not found',
+        });
       }
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении пользователя',
+          message: 'Invalid data',
+          err: err.message,
+          stack: err.stack,
         });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка сервера' });
+        res.status(500).send({
+          message: 'Update Error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
     });
 };
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  const owner = req.user._id;
-  User.findByIdAndUpdate(owner, { avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => {
-      if (user) {
+      if (user && user.avatar === avatar) {
         res.status(200).send(user);
       } else {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
+        res.status(400).json({
+          message: 'Avatar URL in response does not match the requested URL',
+          err: 'Invalid avatar URL',
+        });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении пользователя',
+          message: 'Invalid data',
+          err: err.message,
+          stack: err.stack,
         });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка сервера' });
+        res.status(500).send({
+          message: 'Update Error',
+          err: err.message,
+          stack: err.stack,
+        });
       }
     });
 };
