@@ -7,18 +7,33 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.user._id)
+  User.findById(req.user._id, { lean: false }, { runValidators: true })
     .orFail(() => { throw new Error('NotFound'); })
     .then((user) => res.status(200).send({ user }))
+    // .catch((err) => {
+    //   if (err.message === 'NotFound') {
+    //     res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+    //     return;
+    //   }
+    //   if (err.name === 'CastError') {
+    // eslint-disable-next-line max-len
+    //     res.status(400).send({ message: 'Переданы некорректные данные при поиске пользователя' });
+    //   } else {
+    //     res.status(500).send({ message: 'Ошибка по умолчанию' });
+    //   }
+    // });
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при поиске пользователя' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'переданы некорректные данные',
+          err: err.message,
+        });
+      } else if (err.status === 404) {
+        res.status(404).send({ message: 'Пользователь не найден' })
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({
+          message: 'Что-то не так',
+        });
       }
     });
 };
