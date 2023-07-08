@@ -39,7 +39,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateProfile = (req, res) => {
   // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(req.user._id, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user.userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
     .then((user) => {
       res.send({ user });
     })
@@ -55,7 +55,7 @@ module.exports.updateProfile = (req, res) => {
 };
 module.exports.updateAvatar = (req, res) => {
   // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user.userId, { avatar: req.body.avatar }, { new: true, runValidators: true })
     .then((user) => {
       res.send({ user });
     })
