@@ -39,18 +39,17 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
-
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.status(200).send({ user }))
+    .then((data) => {
+      res.send(data);
+    })
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      } else if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
       }
     });
 };
