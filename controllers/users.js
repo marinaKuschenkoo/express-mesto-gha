@@ -58,11 +58,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
+      res.send(data);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
