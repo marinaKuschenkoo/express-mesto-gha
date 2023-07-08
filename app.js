@@ -7,19 +7,19 @@ const app = express();
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
-app.use(express.json());
-
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 // 64a5ea224e759e5c95e7f9e3
 app.use((req, res, next) => {
   req.user = {
-    _id: '64a5ea224e759e5c95e7f9e3',
+    _id: '64a5f310a1b6f58391f11bc1',
   };
 
   next();
 });
+
+app.use(express.json());
 
 app.use('/', userRouter);
 app.use('/', cardRouter);

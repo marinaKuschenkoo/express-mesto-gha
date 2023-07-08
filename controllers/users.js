@@ -41,8 +41,8 @@ module.exports.updateProfile = (req, res) => {
   const userId = req.user._id;
   // eslint-disable-next-line max-len
   User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
-    .then((user) => {
-      res.send({ user });
+    .then((data) => {
+      res.send({ data });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -58,8 +58,8 @@ module.exports.updateAvatar = (req, res) => {
   const userId = req.user._id;
   // eslint-disable-next-line max-len
   User.findByIdAndUpdate(userId, { avatar: req.body.avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      res.send({ user });
+    .then((data) => {
+      res.send({ data });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
