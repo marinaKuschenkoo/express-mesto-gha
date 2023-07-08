@@ -56,8 +56,9 @@ module.exports.updateProfile = (req, res) => {
 };
 module.exports.updateAvatar = (req, res) => {
   const userId = req.user._id;
+  const { avatar } = req.body;
   // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(userId, { avatar: req.body.avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((data) => {
       res.send({ data });
     })
