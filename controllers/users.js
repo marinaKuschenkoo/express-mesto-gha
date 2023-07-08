@@ -40,8 +40,8 @@ module.exports.createUser = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((data) => {
-      res.send(data);
+    .then((user) => {
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: true,
-    default: 'https://a.ppy.sh/9958822?1615128896.jpeg',
   },
 });
 
