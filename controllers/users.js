@@ -55,27 +55,16 @@ module.exports.updateProfile = (req, res) => {
     });
 };
 module.exports.updateAvatar = (req, res) => {
-  const userId = req.user._id;
-  User.findByIdAndUpdate(userId, { avatar: req.body.avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      const err = new Error();
-      err.status = 404;
-      throw err;
-    })
-    .then((user) => res.send({ data: user }))
+  const { avatar } = req.body;
+
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.status === 404) {
-        res.status(404).send({ message: 'Пользователь не найден' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'переданы некорректные данные',
-          // err: err.message
-        });
-      } else {
-        res.status(500).send({
-          message: 'Что-то не так',
-          // err: err.message
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении аватара.',
         });
       }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
