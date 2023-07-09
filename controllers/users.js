@@ -6,6 +6,24 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию' }));
 };
 
+module.exports.updateProfile = (req, res) => {
+  const userId = req.user._id;
+  // eslint-disable-next-line max-len
+  User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
+    .then((data) => {
+      res.send({ data });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      } else if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      } else {
+        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
+      }
+    });
+};
+
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .orFail(() => { throw new Error('NotFound'); })
@@ -37,23 +55,6 @@ module.exports.createUser = (req, res) => {
     });
 };
 
-module.exports.updateProfile = (req, res) => {
-  const userId = req.user._id;
-  // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
-    .then((data) => {
-      res.send({ data });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
-      }
-    });
-};
 module.exports.updateAvatar = (req, res) => {
   const userId = req.user._id;
   const { avatar } = req.body;
