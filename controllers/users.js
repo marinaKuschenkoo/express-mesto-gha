@@ -55,20 +55,31 @@ module.exports.updateProfile = (req, res) => {
     });
 };
 module.exports.updateAvatar = (req, res) => {
-  const userId = req.user._id;
   const { avatar } = req.body;
-  // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
     .then((user) => {
-      res.send({ user });
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
+      // if (err.name === 'NotFoundError') {
+      //   res
+      //     .status(ERROR_NOT_FOUND)
+      //     .send({ message: ' Запрашиваемый пользователь не найден' });
+      //   return;
+      // }
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: 'Переданы некорректные данные',
+        });
+        return;
       }
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
