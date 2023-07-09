@@ -1,71 +1,114 @@
 const User = require('../models/user');
 
-module.exports.getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(200).send({ users }))
-    .catch(() => res.status(500).send({ message: 'Ошибка по умолчанию' }));
-};
+function getUsers(req, res) {
+  return User.find({})
+    .then((users) => res.status(200).send({ data: users }))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
 
-module.exports.getUserById = (req, res) => {
-  User.findById(req.params.userId)
-    .orFail(() => { throw new Error('NotFound'); })
-    .then((user) => res.status(200).send({ user }))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден' });
+function getUser(req, res) {
+  const { userId } = req.params;
+  return User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res
+          .status(404)
+          .send({ message: ' Запрашиваемый пользователь не найден' });
         return;
       }
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при поиске пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
-    });
-};
 
-module.exports.createUser = (req, res) => {
+      res.status(200).send({ data: user });
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
+
+function createUser(req, res) {
   const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
-    .then((users) => res.status(200).send({ users }))
+  return User.create({ name, about, avatar })
+    .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
       }
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
-};
+}
 
-module.exports.updateProfile = (req, res) => {
-  const userId = req.user._id;
-  // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
-    .then((data) => {
-      res.send({ data });
+function updateUser(req, res) {
+  const { name, about } = req.body;
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .then((user) => {
+      if (!user) {
+        res
+          .status(404)
+          .send({ message: ' Запрашиваемый пользователь не найден' });
+        return;
+      }
+
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
-      }
-    });
-};
-module.exports.updateAvatar = (req, res) => {
-  const { avatar } = req.body;
-  User
-    .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.status(200).send({ user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
         });
-      } else {
-        res.status(500).send({ message: err.message });
+        return;
       }
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
+}
+
+function updateAvatar(req, res) {
+  const { avatar } = req.body;
+  return User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .then((user) => {
+      if (!user) {
+        res
+          .status(404)
+          .send({ message: ' Запрашиваемый пользователь не найден' });
+        return;
+      }
+
+      res.status(200).send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({
+          message: `${Object.values(err.errors)
+            .map((error) => error.message)
+            .join(', ')}`,
+        });
+        return;
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
+}
+
+module.exports = {
+  getUsers,
+  getUser,
+  createUser,
+  updateUser,
+  updateAvatar,
 };
