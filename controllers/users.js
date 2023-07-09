@@ -60,9 +60,14 @@ module.exports.updateAvatar = (req, res) => {
   // eslint-disable-next-line max-len
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
-      if (user) {
-        res.send({ user });
-      } else { res.status(404).send({ message: 'Пользователь по указанному _id не найден.' }); }
+      if (user && user.avatar === avatar) {
+        res.status(200).send(user);
+      } else {
+        res.status(400).json({
+          message: 'Avatar URL in response does not match the requested URL',
+          err: 'Invalid avatar URL',
+        });
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
