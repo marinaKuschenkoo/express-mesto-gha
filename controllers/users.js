@@ -44,7 +44,9 @@ module.exports.updateProfile = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.send({ user });
+        res.send({ user });
+      } else {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
     })
     .catch((err) => {
@@ -61,10 +63,11 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User
     .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.send({ user });
+        res.send({ user });
+      } else {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
     })
     .catch((err) => {
