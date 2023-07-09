@@ -1,20 +1,15 @@
 const express = require('express');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const bodyParser = require('body-parser');
 
-const { PORT = 3000 } = process.env;
 const app = express();
+const { PORT = 3000 } = process.env;
+
+app.use(express.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
 
 // 64a5ea224e759e5c95e7f9e3
 app.use((req, res, next) => {
@@ -23,6 +18,9 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+const userRouter = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 app.use('/', userRouter);
 app.use('/', cardRouter);
