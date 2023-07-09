@@ -56,26 +56,26 @@ module.exports.updateProfile = (req, res) => {
 };
 module.exports.updateAvatar = (req, res) => {
   const userId = req.user._id;
-  const { avatar } = req.body;
-  // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user && user.avatar === avatar) {
-        res.status(200).send(user);
-      } else {
-        res.status(400).json({
-          message: 'Avatar URL in response does not match the requested URL',
-          err: 'Invalid avatar URL',
-        });
-      }
+  User.findByIdAndUpdate(userId, { avatar: req.body.avatar }, { new: true, runValidators: true })
+    .orFail(() => {
+      const err = new Error();
+      err.status = 404;
+      throw err;
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
+      if (err.status === 404) {
+        res.status(404).send({ message: 'Пользователь не найден' });
       } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        res.status(400).send({
+          message: 'переданы некорректные данные',
+          // err: err.message
+        });
       } else {
-        res.status(500).send({ message: `На сервере произошла ошибка: ${err.name}` });
+        res.status(500).send({
+          message: 'Что-то не так',
+          // err: err.message
+        });
       }
     });
 };
