@@ -43,7 +43,7 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.send(user);
+        return res.send({ user });
       }
       return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
     })
@@ -63,7 +63,7 @@ module.exports.updateAvatar = (req, res) => {
     .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.send(user);
+        return res.send({ user });
       }
       return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
     })
