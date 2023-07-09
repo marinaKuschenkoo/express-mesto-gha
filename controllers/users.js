@@ -43,10 +43,14 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (user) {
-        res.send({ user });
+      if (!user) {
+        res
+          .status(404)
+          .send({ message: ' Запрашиваемый пользователь не найден' });
+        return;
       }
-      res.send({ user });
+
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
