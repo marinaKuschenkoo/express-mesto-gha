@@ -43,7 +43,7 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(userId, { name: req.body.name, about: req.body.about }, { new: true, runValidators: true })
     // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (!user) {
+      if (user) {
         res.send({ user });
       }
       res.send({ user });
@@ -63,7 +63,7 @@ module.exports.updateAvatar = (req, res) => {
   User
     .findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((data) => {
-      if (!data) {
+      if (data) {
         res.send({ res: data });
       }
       res.send({ RES: data });
