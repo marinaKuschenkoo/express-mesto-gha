@@ -45,9 +45,8 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       if (!user) {
         res.send({ user });
-      } else {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -66,9 +65,8 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res.send({ user });
-      } else {
-        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
