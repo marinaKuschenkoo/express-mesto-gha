@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const { NOT_FOUND } = require('./errors/errors');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -23,7 +24,7 @@ app.use((req, res, next) => {
 app.use('/', userRouter);
 app.use('/', cardRouter);
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страницы не существует' });
+  res.status(NOT_FOUND).send({ message: 'Страницы не существует' });
 });
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
