@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 /* eslint-disable import/no-extraneous-dependencies */
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');

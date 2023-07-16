@@ -39,11 +39,11 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
+        throw new NotFoundError('Пользователи не найдены');
       }
       res.send({ users });
     })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -75,6 +75,9 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
+    .catch(() => {
+      throw new AlreadyExistError('Пользователь с таким email уже существует');
+    })
     .then((user) => {
       res.send({
         data: {
