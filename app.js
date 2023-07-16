@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable newline-per-chained-call */
 /* eslint-disable import/no-extraneous-dependencies */
 const express = require('express');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -9,12 +11,7 @@ const cardRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const {
-  BAD_REQUEST,
   NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  VALIDATION_ERROR,
-  INTERDICTION_ERROR,
-  ALREADY_EXIST_ERROR,
 } = require('./errors/errors');
 
 const app = express();
