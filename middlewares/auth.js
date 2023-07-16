@@ -1,13 +1,15 @@
 // eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
 const jwt = require('jsonwebtoken');
-const ValidationError = require('../errors/ValidationError');
+const {
+  VALIDATION_ERROR,
+} = require('../errors/errors');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.cookies.jwt;
-  if (!authorization) {
-    throw new ValidationError('Необходима авторизация');
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    res.status(VALIDATION_ERROR).send({ message: 'Необходима авторизация' });
   }
-  const token = authorization;
+  const token = authorization.replace('Bearer ', '');
   let payload;
   try {
     payload = jwt.verify(token, 'some-secret-key');
@@ -15,7 +17,8 @@ module.exports = (req, res, next) => {
       httpOnly: true,
     });
   } catch (err) {
-    throw new ValidationError('Необходима авторизация');
+    res
+      .status(VALIDATION_ERROR).send({ message: 'Необходима авторизация' });
   }
   req.user = payload;
   next();
