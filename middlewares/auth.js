@@ -1,23 +1,25 @@
-/* eslint-disable import/no-extraneous-dependencies */
-// eslint-disable-next-line import/no-unresolved
+/* eslint-disable consistent-return */
+// eslint-disable-next-line import/no-extraneous-dependencies
 const jwt = require('jsonwebtoken');
-const { VALIDATION_ERROR } = require('../errors/errors');
+const ValidationError = require('../errors/ValidationError');
 const { secret } = require('../constants');
 
-module.exports = (req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+module.exports = (req, res, next, err) => {
   console.log(secret);
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    res.status(VALIDATION_ERROR).send({ message: 'Необходима авторизация!' });
-  } else {
-    const token = authorization.replace('Bearer ', '');
-    let payload;
-    try {
-      payload = jwt.verify(token, secret);
-    } catch (err) {
-      res.status(VALIDATION_ERROR).send({ message: 'Необходима авторизация' });
-    }
-    req.user = payload;
-    next();
+    // return err.message;
+    throw new ValidationError('Необходима авторизация!');
+    // res.status(VALIDATION_ERROR).send({ message: 'Необходима авторизация!' });
   }
+  const token = authorization.replace('Bearer ', '');
+  let payload;
+  try {
+    payload = jwt.verify(token, secret);
+  } catch (error) {
+    throw new ValidationError('Необходима авторизация!');
+  }
+  req.user = payload;
+  next();
 };

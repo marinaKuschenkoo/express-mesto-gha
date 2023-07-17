@@ -4,7 +4,6 @@
 const express = require('express');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const ServerErrorHandler = require('./middlewares/ServerErrorHandler');
 const userRouter = require('./routes/users');
@@ -47,7 +46,6 @@ app.post(
   }),
   login,
 );
-app.use(cookieParser());
 app.use('/', auth, userRouter);
 app.use('/', auth, cardRouter);
 app.use('*', (req, res) => {
