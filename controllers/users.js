@@ -11,16 +11,17 @@ const InterdictionError = require('../errors/InterdictionError');
 const InternalServerError = require('../errors/InternalServerError');
 const AlreadyExistError = require('../errors/AlreadyExistError');
 const ValidationError = require('../errors/ValidationError');
+const { secret } = require('../constants');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret-key', {
+      const token = jwt.sign({ _id: user._id }, secret, {
         expiresIn: '7d',
       });
-      res.send({ message: 'Авторизация прошла успешно' });
+      res.send({ message: 'Авторизация прошла успешно', token });
     })
     .catch(next);
 };
