@@ -1,4 +1,4 @@
-const secret = 'helloWorld';
+const secret = 'helloWorldhelloWorldhelloWorldhelloWorld';
 
 module.exports = {
   secret,

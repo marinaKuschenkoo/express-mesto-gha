@@ -14,12 +14,12 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findByIdAndRemove(req.params)
     .then((card) => {
       if (!Card) {
         throw new NotFoundError('Карта с данным _id не найдена');
       }
-      if (req.user === card.owner.toString()) {
+      if (req.user._id === card.owner.toString()) {
         res.send({ data: card });
       } else {
         throw new InterdictionError('Невозможно удалить карту с другим _id пользователя');
@@ -58,7 +58,7 @@ module.exports.setLike = (req, res, next) => {
 module.exports.deleteLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user } },
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => {
