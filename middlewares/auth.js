@@ -5,7 +5,6 @@ const ValidationError = require('../errors/ValidationError');
 const { secret } = require('../constants');
 
 module.exports = (req, res, next) => {
-  console.log(secret);
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new ValidationError('Необходима авторизация!');
