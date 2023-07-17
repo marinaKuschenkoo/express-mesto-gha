@@ -11,6 +11,7 @@ const {
 } = require('../controllers/users');
 
 router.get('/users', getUsers);
+router.get('/users/me', getCurrentUser);
 router.get(
   '/users/:userId',
   celebrate({
@@ -20,7 +21,6 @@ router.get(
   }),
   getUserById,
 );
-router.get('/users/me', getCurrentUser);
 router.patch(
   '/users/me',
   celebrate({
