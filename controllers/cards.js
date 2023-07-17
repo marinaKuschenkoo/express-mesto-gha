@@ -19,7 +19,15 @@ module.exports.deleteCard = (req, res, next) => {
       } else if (!card) {
         throw new NotFoundError('Карта с данным _id не найдена');
       }
-      Card.deleteOne(card).then(() => res.send(card));
+      Card.deleteOne(card)
+        .then(() => res.send(card))
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            next(new BadRequestError('Данные введены некорректно'));
+          } else {
+            next(err);
+          }
+        });
     })
     .catch(next);
 };

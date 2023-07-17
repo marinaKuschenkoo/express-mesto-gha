@@ -36,9 +36,6 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
-      if (!users) {
-        throw new NotFoundError('Пользователи не найдены');
-      }
       res.send({ users });
     })
     .catch((err) => next(err));
