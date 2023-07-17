@@ -10,10 +10,8 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
-const {
-  NOT_FOUND,
-} = require('./errors/errors');
 const NotFoundError = require('./errors/NotFoundError');
+
 const app = express();
 const { PORT = 3000 } = process.env;
 
