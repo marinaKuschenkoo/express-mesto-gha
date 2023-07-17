@@ -14,16 +14,14 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params)
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!Card) {
-        throw new NotFoundError('Карта с данным _id не найдена');
-      }
-      if (req.user._id === card.owner.toString()) {
-        res.send({ data: card });
-      } else {
+      if (card && card.owner.toString() === req.user._id) {
+        return res.send({ data: card });
+      } if (card && !(card.owner.toString() === req.user._id)) {
         throw new InterdictionError('Невозможно удалить карту с другим _id пользователя');
       }
+      throw new NotFoundError('Карта с данным _id не найдена');
     })
     .catch(next);
 };
