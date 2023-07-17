@@ -29,9 +29,6 @@ module.exports.login = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь по указанному _id не найден');
-      }
       res.send({ user });
     })
     .catch(next);
@@ -76,9 +73,6 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .catch(() => {
-      throw new AlreadyExistError('Пользователь с таким email уже существует');
-    })
     .then((user) => {
       res.send({
         data: {
@@ -90,7 +84,15 @@ module.exports.createUser = (req, res, next) => {
         },
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new AlreadyExistError('Пользователь с данным email уже существует'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError('Ошибка валидации данных'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -113,7 +115,13 @@ module.exports.updateProfile = (req, res, next) => {
 
       res.send({ user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при обновлении информации о пользователе'));
+      } else {
+        next(err);
+      }
+    });
 };
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
@@ -129,5 +137,11 @@ module.exports.updateAvatar = (req, res, next) => {
 
       res.send({ user });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при обновлении аватара'));
+      } else {
+        next(err);
+      }
+    });
 };

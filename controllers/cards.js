@@ -1,26 +1,25 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const InterdictionError = require('../errors/InterdictionError');
+const BadRequestError = require('../errors/BadRequestError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      if (!cards) {
-        throw new NotFoundError('Карты не найдены');
-      }
       res.send({ cards });
     })
     .catch(next);
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (card && card.owner.toString() === req.user._id) {
         return res.send({ data: card });
       } if (card && !(card.owner.toString() === req.user._id)) {
         throw new InterdictionError('Невозможно удалить карту с другим _id пользователя');
       }
+      Card.deleteOne(card).then(() => res.send(card));
       throw new NotFoundError('Карта с данным _id не найдена');
     })
     .catch(next);
@@ -35,7 +34,13 @@ module.exports.createCard = (req, res, next) => {
       }
       res.send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при создании карточки.'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.setLike = (req, res, next) => {

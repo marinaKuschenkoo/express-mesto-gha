@@ -13,7 +13,7 @@ const { login, createUser } = require('./controllers/users');
 const {
   NOT_FOUND,
 } = require('./errors/errors');
-
+const NotFoundError = require('./errors/NotFoundError');
 const app = express();
 const { PORT = 3000 } = process.env;
 
@@ -48,8 +48,8 @@ app.post(
 );
 app.use('/', auth, userRouter);
 app.use('/', auth, cardRouter);
-app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страницы не существует' });
+app.use('*', auth, () => {
+  throw new NotFoundError('Страницы не существует');
 });
 app.use(errors());
 app.use(ServerErrorHandler);
